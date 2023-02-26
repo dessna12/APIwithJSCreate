@@ -7,7 +7,9 @@ const {success, error, checkAndChange} = require('./assets/functions')
 const bodyParser = require('body-parser')
 const config = require('./assets/config')
 const mysql = require('promise-mysql')
-
+//const expressOasGenerator = require('express-oas-generator')
+const swaggerUi = require('swagger-ui-express')
+const swaggerDocument =require('./assets/swagger.json')
 
 mysql.createConnection({
     host: config.db.host,
@@ -20,6 +22,13 @@ mysql.createConnection({
     console.log('Connecté à mysql')
             
         const app = express()
+
+        //Generation de Doc Swagger en accédant à l'adresse
+        //http://localhost:8080/api-docs/
+        //on désinstalle par la suite ce module
+        
+        // expressOasGenerator.init(app,{})
+
         
         // Creation de Routers
         // Les routeurs permettent d'éviter de réécrire
@@ -35,8 +44,8 @@ mysql.createConnection({
         app.use(express.json()) 
         // for parsing application/x-www-form-urlencoded
         app.use(express.urlencoded({ extended: true })) 
-
-
+        // inclusion de Swagger UI
+        app.use(config.rootAPI+'api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
         //Utilisation de la route 
         MembersRouter.route('/:id')
 
@@ -61,32 +70,30 @@ mysql.createConnection({
         })
 
 
-            // Creation de requête DELETE
-            .delete(async(req,res) => {
-                let deleteMember = await Members.delete(req.params.id)
-                res.json(checkAndChange(deleteMember))
+        // Creation de requête DELETE
+        .delete(async(req,res) => {
+            let deleteMember = await Members.delete(req.params.id)
+            res.json(checkAndChange(deleteMember))
 
-            })
+        })
 
-            MembersRouter.route('/') 
+        MembersRouter.route('/') 
 
-            // Requêtes GET POUR RECUPERER TOUS LES MEMBRES
-            .get(async(req,res) => {
-                let allMembers = await Members.getAll(req.query.max)
-                res.json(checkAndChange(allMembers))
-            })
+        // Requêtes GET POUR RECUPERER TOUS LES MEMBRES
+        .get(async(req,res) => {
+            let allMembers = await Members.getAll(req.query.max)
+            res.json(checkAndChange(allMembers))
+        })
 
 
             //utilisation de POST
-            .post(async (req,res) => {
-                let addMember = await Members.add(req.body.name)
-                res.json(checkAndChange(addMember))
-            })
+        .post(async (req,res) => {
+            let addMember = await Members.add(req.body.name)
+            res.json(checkAndChange(addMember))
+        })
 
             
-            
-
-
+           
         // url sur lequel le routeur agit à la fin avant app.listen
         app.use(config.rootAPI +'members', MembersRouter)
 

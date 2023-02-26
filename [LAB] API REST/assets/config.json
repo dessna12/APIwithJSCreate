@@ -7,5 +7,12 @@
         "user":"root",
         "password": "",
         "port":3307
+    },
+    "errors":{
+        "wrongID":"wrong id",
+        "wrongMaxValue":"wrong max value",
+        "nameAlreadyTaken":"name already taken",
+        "noNameValue":"no name value",
+        "sameName":"same name"
     }
 }

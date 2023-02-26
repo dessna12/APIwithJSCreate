@@ -17,12 +17,12 @@ let Members = class {
             //ici on a pas fait resolve, reject car on veut traiter l'erreur plutot
             //dans le corps de la fonction principale
             //on a mis next partout. Mais on peut faire avec (resolve, reject)
-            db.query('SELECT * FROM members WHERE id = ?',[id])
+            db.query('SELECT * FROM members2 WHERE id = ?',[id])
             .then((result) => {
                 if (result[0] != undefined){                    
                     next(result[0])
                 }else{
-                    next(new Error('Wrong id'))
+                    next(new Error(config.errors.wrongID))
                 }
             }).catch((err) => next(err))
 
@@ -36,14 +36,14 @@ let Members = class {
 
                 if (max != undefined && max >0) {
             
-                    db.query('SELECT * FROM members LIMIT 0, ?', [parseInt(max)])
+                    db.query('SELECT * FROM members2 LIMIT 0, ?', [parseInt(max)])
                     .then((result) => next(result))
                     .catch((err) => next(err))
                     
                 } else if (max != undefined) {
-                    next(new Error('Wrong max value'))
+                    next(new Error(config.errors.wrongMaxValue))
                 }else{
-                    db.query('SELECT * FROM members')
+                    db.query('SELECT * FROM members2')
                     .then((result) => next(result))
                     .catch((err) => next(err))
                 }
@@ -59,16 +59,16 @@ let Members = class {
             
             name = name.trim()
             
-            db.query('SELECT * FROM members WHERE name = ?', [name])
+            db.query('SELECT * FROM members2 WHERE name = ?', [name])
             .then((result) => {
-                if (result[0] != undefined){
-                    next(new Error('name already taken'))
+                if (result[0] = undefined){
+                    next(new Error(config.errors.nameAlreadyTaken))
                 } else {
-                    return db.query('INSERT INTO members(name) VALUES(?)', [name])
+                    return db.query('INSERT INTO members2(name) VALUES(?)', [name])
                 }
             })
             .then(() => {
-                return db.query('SELECT * from members WHERE name = ?', [name])
+                return db.query('SELECT * from members2 WHERE name = ?', [name])
             })
             .then((result) => {
                 next({
@@ -78,7 +78,7 @@ let Members = class {
             })
             .catch((err) => next(err))
         }else{
-            next(new Error('No name value'))
+            next(new Error(config.errors.noNameValue))
         }
         })
 
@@ -95,23 +95,23 @@ let Members = class {
                 //la fonction trim permet d'enlever les espaces
                 name = name.trim()
 
-                db.query('SELECT * FROM members WHERE id = ?', [id])
+                db.query('SELECT * FROM members2 WHERE id = ?', [id])
                 .then((result) => {
                     if (result[0] != undefined)                        
-                        return db.query('SELECT * FROM members WHERE name = ? AND id != ?', [name, id])
+                        return db.query('SELECT * FROM members2 WHERE name = ? AND id != ?', [name, id])
                     else
-                        next(new Error("Wrong id value"))   
+                        next(new Error(config.errors.wrongID))   
                 })
                 .then((result)=>{
                     if(result[0]!= undefined)
-                        next(new Error("same name"))
+                        next(new Error(config.errors.sameName))
                     else
-                        return db.query('UPDATE members SET name = ? WHERE id = ?', [name, id])
+                        return db.query('UPDATE members2 SET name = ? WHERE id = ?', [name, id])
                 })
                 .then(() => next(true))
                 .catch((err) => next(err))
             }else{
-                next(new Error('no name value'))
+                next(new Error(config.errors.noNameValue))
             }
         })
     }
@@ -122,12 +122,12 @@ let Members = class {
 
         return new Promise((next) => {
 
-            db.query('SELECT * FROM members WHERE id=?', [id])
+            db.query('SELECT * FROM members2 WHERE id=?', [id])
             .then((result) => {
                 if(result[0] != undefined) {
-                    return db.query('DELETE FROM members WHERE id= ?', [id])
+                    return db.query('DELETE FROM members2 WHERE id= ?', [id])
                 }else{
-                    next(new Error('id non valide'))
+                    next(new Error(config.errors.wrongID))
                 }
             })
             .then(() => next(true))
